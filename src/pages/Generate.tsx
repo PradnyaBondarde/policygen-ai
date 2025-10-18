@@ -5,18 +5,25 @@ import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { motion, AnimatePresence } from "framer-motion";
 import { ArrowLeft, ArrowRight } from "lucide-react";
-import { BasicInfo } from "@/components/FormSteps/BasicInfo";
+import { PlatformSelection } from "@/components/FormSteps/PlatformSelection";
+import { OwnerEntityDetails } from "@/components/FormSteps/OwnerEntityDetails";
+import { WebsiteAppDetails } from "@/components/FormSteps/WebsiteAppDetails";
 import { UserData } from "@/components/FormSteps/UserData";
 import { DevicePermissions } from "@/components/FormSteps/DevicePermissions";
 import { TrackingMarketing } from "@/components/FormSteps/TrackingMarketing";
 import { LegalCompliance } from "@/components/FormSteps/LegalCompliance";
 import { ContactInfo } from "@/components/FormSteps/ContactInfo";
 
-const TOTAL_STEPS = 6;
+const TOTAL_STEPS = 11;
 
 const Generate = () => {
   const [currentStep, setCurrentStep] = useState(1);
   const [formData, setFormData] = useState<any>({
+    platformType: "",
+    ownerType: "",
+    languages: [],
+    operationScope: [],
+    targetAgeGroups: [],
     userDataCollected: [],
     devicePermissions: [],
     analytics: { enabled: false, tools: [] },
@@ -25,6 +32,7 @@ const Generate = () => {
     payments: { enabled: false, tools: [] },
     remarketing: { enabled: false, tools: [] },
     legalCompliance: [],
+    appStoreUrls: [],
   });
   const navigate = useNavigate();
 
@@ -52,16 +60,26 @@ const Generate = () => {
   const renderStep = () => {
     switch (currentStep) {
       case 1:
-        return <BasicInfo formData={formData} updateFormData={updateFormData} />;
+        return <PlatformSelection formData={formData} updateFormData={updateFormData} />;
       case 2:
-        return <UserData formData={formData} updateFormData={updateFormData} />;
+        return <OwnerEntityDetails formData={formData} updateFormData={updateFormData} />;
       case 3:
-        return <DevicePermissions formData={formData} updateFormData={updateFormData} />;
+        return <WebsiteAppDetails formData={formData} updateFormData={updateFormData} />;
       case 4:
-        return <TrackingMarketing formData={formData} updateFormData={updateFormData} />;
+        return <UserData formData={formData} updateFormData={updateFormData} />;
       case 5:
-        return <LegalCompliance formData={formData} updateFormData={updateFormData} />;
+        return <DevicePermissions formData={formData} updateFormData={updateFormData} />;
       case 6:
+        return <TrackingMarketing formData={formData} updateFormData={updateFormData} />;
+      case 7:
+        return <LegalCompliance formData={formData} updateFormData={updateFormData} />;
+      case 8:
+        return <ContactInfo formData={formData} updateFormData={updateFormData} />;
+      case 9:
+        return <ContactInfo formData={formData} updateFormData={updateFormData} />;
+      case 10:
+        return <ContactInfo formData={formData} updateFormData={updateFormData} />;
+      case 11:
         return <ContactInfo formData={formData} updateFormData={updateFormData} />;
       default:
         return null;
@@ -70,12 +88,17 @@ const Generate = () => {
 
   const getStepTitle = () => {
     const titles = [
-      "Basic Information",
-      "User Data Collected",
-      "Device Permissions",
-      "Tracking & Marketing",
-      "Legal Compliance",
-      "Contact Information",
+      "Platform Selection",
+      "Owner / Entity Details",
+      "Website / App Details",
+      "Data Collected",
+      "How Data Is Collected",
+      "Purpose of Processing",
+      "Third Parties & Data Sharing",
+      "Legal Frameworks & Compliance",
+      "Retention, Security & Breach Response",
+      "Cookies, Consent & User Controls",
+      "Contact & Finalization",
     ];
     return titles[currentStep - 1];
   };
