@@ -1,22 +1,31 @@
+import React from "react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Button } from "@/components/ui/button";
-import { useState } from "react";
-import { Plus, X } from "lucide-react";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { AlertCircle, Plus, X } from "lucide-react";
 
 interface WebsiteAppDetailsProps {
   formData: any;
   updateFormData: (data: any) => void;
+  onValidation?: (isValid: boolean) => void;
 }
 
-export const WebsiteAppDetails = ({ formData, updateFormData }: WebsiteAppDetailsProps) => {
+export const WebsiteAppDetails = ({ formData, updateFormData, onValidation }: WebsiteAppDetailsProps) => {
   const platformType = formData.platformType || "";
-  const [newAppUrl, setNewAppUrl] = useState("");
+  const [newAppUrl, setNewAppUrl] = React.useState("");
+  const [customLanguage, setCustomLanguage] = React.useState("");
 
-  const languages = ["English", "Spanish", "French", "German", "Chinese", "Japanese", "Portuguese", "Hindi", "Arabic"];
+  const commonLanguages = ["English", "Spanish", "French", "German", "Chinese", "Japanese", "Portuguese", "Hindi", "Arabic"];
   const scopes = ["Local", "National", "International"];
   const ageGroups = ["All ages", "Children (<13)", "Teens (13-17)", "Adults (18+)"];
+
+  const isValid = (formData.languages?.length > 0) && (formData.operationScope?.length > 0);
+  
+  React.useEffect(() => {
+    onValidation?.(isValid);
+  }, [isValid, onValidation]);
 
   const addAppUrl = () => {
     if (newAppUrl.trim()) {
@@ -37,6 +46,21 @@ export const WebsiteAppDetails = ({ formData, updateFormData }: WebsiteAppDetail
       ? current.filter((l: string) => l !== lang)
       : [...current, lang];
     updateFormData({ languages: updated });
+  };
+
+  const addCustomLanguage = () => {
+    if (customLanguage.trim()) {
+      const languages = formData.languages || [];
+      if (!languages.includes(customLanguage.trim())) {
+        updateFormData({ languages: [...languages, customLanguage.trim()] });
+      }
+      setCustomLanguage("");
+    }
+  };
+
+  const removeLanguage = (lang: string) => {
+    const languages = formData.languages || [];
+    updateFormData({ languages: languages.filter((l: string) => l !== lang) });
   };
 
   const toggleScope = (scope: string) => {
@@ -110,8 +134,8 @@ export const WebsiteAppDetails = ({ formData, updateFormData }: WebsiteAppDetail
 
       <div>
         <Label className="text-base font-semibold mb-3 block">Primary Language(s) *</Label>
-        <div className="grid grid-cols-2 gap-3">
-          {languages.map((lang) => (
+        <div className="grid grid-cols-2 gap-3 mb-3">
+          {commonLanguages.map((lang) => (
             <div key={lang} className="flex items-center space-x-2">
               <Checkbox
                 id={lang}
@@ -122,6 +146,32 @@ export const WebsiteAppDetails = ({ formData, updateFormData }: WebsiteAppDetail
             </div>
           ))}
         </div>
+        
+        <div className="flex items-center space-x-2">
+          <Input
+            placeholder="Add custom language"
+            value={customLanguage}
+            onChange={(e) => setCustomLanguage(e.target.value)}
+            onKeyDown={(e) => e.key === "Enter" && addCustomLanguage()}
+          />
+          <Button type="button" size="sm" onClick={addCustomLanguage}>
+            <Plus className="h-4 w-4" />
+          </Button>
+        </div>
+
+        {(formData.languages || []).filter((l: string) => !commonLanguages.includes(l)).map((lang: string) => (
+          <div key={lang} className="flex items-center justify-between bg-secondary p-2 rounded mt-2">
+            <span className="text-sm">{lang}</span>
+            <Button
+              type="button"
+              variant="ghost"
+              size="sm"
+              onClick={() => removeLanguage(lang)}
+            >
+              <X className="h-4 w-4" />
+            </Button>
+          </div>
+        ))}
       </div>
 
       <div>
@@ -163,6 +213,15 @@ export const WebsiteAppDetails = ({ formData, updateFormData }: WebsiteAppDetail
           </div>
         )}
       </div>
+
+      {!isValid && (
+        <Alert variant="destructive">
+          <AlertCircle className="h-4 w-4" />
+          <AlertDescription>
+            Please select at least one language and operation scope to continue.
+          </AlertDescription>
+        </Alert>
+      )}
     </div>
   );
 };

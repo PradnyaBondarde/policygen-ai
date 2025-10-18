@@ -18,6 +18,7 @@ const TOTAL_STEPS = 11;
 
 const Generate = () => {
   const [currentStep, setCurrentStep] = useState(1);
+  const [isStepValid, setIsStepValid] = useState(false);
   const [formData, setFormData] = useState<any>({
     platformType: "",
     ownerType: "",
@@ -26,6 +27,7 @@ const Generate = () => {
     targetAgeGroups: [],
     userDataCollected: [],
     devicePermissions: [],
+    collectionMethods: [],
     analytics: { enabled: false, tools: [] },
     emailMarketing: { enabled: false, tools: [] },
     advertising: { enabled: false, tools: [] },
@@ -33,6 +35,7 @@ const Generate = () => {
     remarketing: { enabled: false, tools: [] },
     legalCompliance: [],
     appStoreUrls: [],
+    confirmAccuracy: false,
   });
   const navigate = useNavigate();
 
@@ -41,8 +44,13 @@ const Generate = () => {
   };
 
   const handleNext = () => {
+    if (!isStepValid && currentStep < TOTAL_STEPS) {
+      return; // Don't proceed if current step is invalid
+    }
+    
     if (currentStep < TOTAL_STEPS) {
       setCurrentStep(currentStep + 1);
+      setIsStepValid(false); // Reset validation for next step
     } else {
       // Navigate to result page with form data
       navigate("/result", { state: { formData } });
@@ -58,13 +66,15 @@ const Generate = () => {
   };
 
   const renderStep = () => {
+    const isFinalStep = currentStep === TOTAL_STEPS;
+    
     switch (currentStep) {
       case 1:
-        return <PlatformSelection formData={formData} updateFormData={updateFormData} />;
+        return <PlatformSelection formData={formData} updateFormData={updateFormData} onValidation={setIsStepValid} />;
       case 2:
-        return <OwnerEntityDetails formData={formData} updateFormData={updateFormData} />;
+        return <OwnerEntityDetails formData={formData} updateFormData={updateFormData} onValidation={setIsStepValid} />;
       case 3:
-        return <WebsiteAppDetails formData={formData} updateFormData={updateFormData} />;
+        return <WebsiteAppDetails formData={formData} updateFormData={updateFormData} onValidation={setIsStepValid} />;
       case 4:
         return <UserData formData={formData} updateFormData={updateFormData} />;
       case 5:
@@ -74,13 +84,11 @@ const Generate = () => {
       case 7:
         return <LegalCompliance formData={formData} updateFormData={updateFormData} />;
       case 8:
-        return <ContactInfo formData={formData} updateFormData={updateFormData} />;
       case 9:
-        return <ContactInfo formData={formData} updateFormData={updateFormData} />;
       case 10:
         return <ContactInfo formData={formData} updateFormData={updateFormData} />;
       case 11:
-        return <ContactInfo formData={formData} updateFormData={updateFormData} />;
+        return <ContactInfo formData={formData} updateFormData={updateFormData} onValidation={setIsStepValid} isFinalStep={isFinalStep} />;
       default:
         return null;
     }
@@ -137,7 +145,7 @@ const Generate = () => {
             <ArrowLeft className="mr-2 h-4 w-4" />
             {currentStep === 1 ? "Cancel" : "Back"}
           </Button>
-          <Button onClick={handleNext}>
+          <Button onClick={handleNext} disabled={!isStepValid && currentStep !== TOTAL_STEPS}>
             {currentStep === TOTAL_STEPS ? "Generate Policy" : "Next"}
             {currentStep !== TOTAL_STEPS && <ArrowRight className="ml-2 h-4 w-4" />}
           </Button>

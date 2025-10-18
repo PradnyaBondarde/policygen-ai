@@ -1,15 +1,39 @@
+import React from "react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { AlertCircle } from "lucide-react";
 
 interface ContactInfoProps {
   formData: any;
   updateFormData: (data: any) => void;
+  onValidation?: (isValid: boolean) => void;
+  isFinalStep?: boolean;
 }
 
-export const ContactInfo = ({ formData, updateFormData }: ContactInfoProps) => {
+export const ContactInfo = ({ formData, updateFormData, onValidation, isFinalStep }: ContactInfoProps) => {
+  const isValid = isFinalStep 
+    ? !!(formData.contactEmail && formData.privacyContactName && formData.confirmAccuracy)
+    : !!(formData.contactEmail);
+  
+  React.useEffect(() => {
+    onValidation?.(isValid);
+  }, [isValid, onValidation]);
+
   return (
     <div className="space-y-6">
+      <div className="space-y-2">
+        <Label htmlFor="privacyContactName">Privacy Contact Name *</Label>
+        <Input
+          id="privacyContactName"
+          value={formData.privacyContactName || ""}
+          onChange={(e) => updateFormData({ privacyContactName: e.target.value })}
+          placeholder="Full Name"
+          required
+        />
+      </div>
+
       <div className="space-y-2">
         <Label htmlFor="contactEmail">Contact Email *</Label>
         <Input
@@ -44,21 +68,31 @@ export const ContactInfo = ({ formData, updateFormData }: ContactInfoProps) => {
         />
       </div>
 
-      <div className="flex items-center space-x-2 p-4 rounded-lg border border-border">
-        <Checkbox
-          id="confirm"
-          checked={formData.confirmed || false}
-          onCheckedChange={(checked) => updateFormData({ confirmed: checked })}
-        />
-        <Label htmlFor="confirm" className="font-normal cursor-pointer">
-          I confirm that the above information is correct
-        </Label>
-      </div>
-
-      {!formData.confirmed && (
-        <p className="text-sm text-destructive">
-          Please confirm the information before generating your policy
-        </p>
+      {isFinalStep && (
+        <div className="space-y-4 mt-6 p-4 border rounded-lg bg-muted/50">
+          <div className="flex items-start space-x-2">
+            <Checkbox
+              checked={formData.confirmAccuracy}
+              onCheckedChange={(checked) => updateFormData({ confirmAccuracy: checked })}
+              id="confirmAccuracy"
+            />
+            <label htmlFor="confirmAccuracy" className="text-sm leading-relaxed cursor-pointer">
+              I confirm that the information provided is accurate and complete. I understand that this 
+              generated policy is a starting point and should be reviewed by a legal professional before use.
+            </label>
+          </div>
+        </div>
+      )}
+      
+      {!isValid && (
+        <Alert variant="destructive">
+          <AlertCircle className="h-4 w-4" />
+          <AlertDescription>
+            {isFinalStep 
+              ? "Please fill in all required fields and confirm accuracy to continue."
+              : "Please fill in all required contact fields to continue."}
+          </AlertDescription>
+        </Alert>
       )}
     </div>
   );

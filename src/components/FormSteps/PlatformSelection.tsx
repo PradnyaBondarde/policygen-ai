@@ -1,12 +1,21 @@
+import React from "react";
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { AlertCircle } from "lucide-react";
 
 interface PlatformSelectionProps {
   formData: any;
   updateFormData: (data: any) => void;
+  onValidation?: (isValid: boolean) => void;
 }
 
-export const PlatformSelection = ({ formData, updateFormData }: PlatformSelectionProps) => {
+export const PlatformSelection = ({ formData, updateFormData, onValidation }: PlatformSelectionProps) => {
+  const isValid = !!formData.platformType;
+  
+  React.useEffect(() => {
+    onValidation?.(isValid);
+  }, [isValid, onValidation]);
   return (
     <div className="space-y-6">
       <p className="text-sm text-muted-foreground">

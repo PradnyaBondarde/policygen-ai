@@ -57,11 +57,12 @@ const Result = () => {
   };
 
   const handleDownload = () => {
-    const blob = new Blob([policy], { type: "text/markdown" });
+    const blob = new Blob([policy], { type: "text/html" });
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
-    a.download = `privacy-policy-${formData.appName.replace(/\s+/g, "-").toLowerCase()}.md`;
+    const filename = (formData?.appName || formData?.websiteUrl || formData?.businessName || "policy").replace(/\s+/g, "-").toLowerCase();
+    a.download = `privacy-policy-${filename}.html`;
     a.click();
     URL.revokeObjectURL(url);
     
@@ -72,6 +73,15 @@ const Result = () => {
   };
 
   const handleSave = async () => {
+    if (!policy) {
+      toast({
+        title: "Error",
+        description: "No policy to save. Please generate a policy first.",
+        variant: "destructive",
+      });
+      return;
+    }
+
     try {
       setIsSaving(true);
       const { data: { user } } = await supabase.auth.getUser();
@@ -86,9 +96,11 @@ const Result = () => {
         return;
       }
 
+      const title = `Privacy Policy - ${formData?.appName || formData?.websiteUrl || formData?.businessName || "Untitled"} - ${new Date().toLocaleDateString()}`;
+
       const { error } = await supabase.from("policies").insert({
         user_id: user.id,
-        title: `Privacy Policy - ${formData.appName}`,
+        title,
         content: policy,
         metadata: formData,
         version: 1,

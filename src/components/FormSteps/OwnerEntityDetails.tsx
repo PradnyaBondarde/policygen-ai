@@ -1,20 +1,33 @@
+import React from "react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { AlertCircle } from "lucide-react";
 
 interface OwnerEntityDetailsProps {
   formData: any;
   updateFormData: (data: any) => void;
+  onValidation?: (isValid: boolean) => void;
 }
 
-export const OwnerEntityDetails = ({ formData, updateFormData }: OwnerEntityDetailsProps) => {
+export const OwnerEntityDetails = ({ formData, updateFormData, onValidation }: OwnerEntityDetailsProps) => {
   const ownerType = formData.ownerType || "";
+  const [showOtherBusinessType, setShowOtherBusinessType] = React.useState(formData.businessType === "other");
+
+  const isValid = ownerType === "individual" 
+    ? !!(formData.individualName && formData.individualEmail)
+    : !!(formData.businessName && formData.businessType && formData.businessEmail);
+  
+  React.useEffect(() => {
+    onValidation?.(isValid);
+  }, [isValid, onValidation]);
 
   return (
     <div className="space-y-6">
       <div>
-        <Label className="text-base font-semibold">Owner Type</Label>
+        <Label className="text-base font-semibold">Owner Type *</Label>
         <RadioGroup
           value={ownerType}
           onValueChange={(value) => updateFormData({ ownerType: value })}
@@ -47,7 +60,13 @@ export const OwnerEntityDetails = ({ formData, updateFormData }: OwnerEntityDeta
             <Label htmlFor="businessType">Business Type *</Label>
             <Select
               value={formData.businessType || ""}
-              onValueChange={(value) => updateFormData({ businessType: value })}
+              onValueChange={(value) => {
+                updateFormData({ businessType: value });
+                setShowOtherBusinessType(value === "other");
+                if (value !== "other") {
+                  updateFormData({ businessTypeOther: "" });
+                }
+              }}
             >
               <SelectTrigger>
                 <SelectValue placeholder="Select business type" />
@@ -61,6 +80,14 @@ export const OwnerEntityDetails = ({ formData, updateFormData }: OwnerEntityDeta
                 <SelectItem value="other">Other</SelectItem>
               </SelectContent>
             </Select>
+            {showOtherBusinessType && (
+              <Input
+                placeholder="Please specify business type"
+                value={formData.businessTypeOther || ""}
+                onChange={(e) => updateFormData({ businessTypeOther: e.target.value })}
+                className="mt-2"
+              />
+            )}
           </div>
 
           <div>
@@ -120,7 +147,7 @@ export const OwnerEntityDetails = ({ formData, updateFormData }: OwnerEntityDeta
           </div>
 
           <div>
-            <Label htmlFor="businessPhone">Business Contact Phone *</Label>
+            <Label htmlFor="businessPhone">Business Contact Phone</Label>
             <Input
               id="businessPhone"
               type="tel"
@@ -166,6 +193,15 @@ export const OwnerEntityDetails = ({ formData, updateFormData }: OwnerEntityDeta
             />
           </div>
         </div>
+      )}
+      
+      {!isValid && ownerType && (
+        <Alert variant="destructive">
+          <AlertCircle className="h-4 w-4" />
+          <AlertDescription>
+            Please fill in all required fields to continue.
+          </AlertDescription>
+        </Alert>
       )}
     </div>
   );
