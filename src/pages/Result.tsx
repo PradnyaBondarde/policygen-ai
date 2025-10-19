@@ -56,7 +56,7 @@ const Result = () => {
     });
   };
 
-  const handleDownload = () => {
+  const handleDownloadHTML = () => {
     const blob = new Blob([policy], { type: "text/html" });
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
@@ -68,7 +68,38 @@ const Result = () => {
     
     toast({
       title: "Downloaded!",
-      description: "Policy downloaded successfully",
+      description: "HTML policy downloaded successfully",
+    });
+  };
+
+  const handleDownloadPDF = () => {
+    toast({
+      title: "PDF Export",
+      description: "Please use the HTML download and convert to PDF using your browser's print function",
+    });
+  };
+
+  const handleDownloadWord = () => {
+    // Create a simple Word-compatible HTML document
+    const wordDoc = `
+      <!DOCTYPE html>
+      <html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word'>
+      <head><meta charset='utf-8'><title>Privacy Policy</title></head>
+      <body>${policy}</body>
+      </html>
+    `;
+    const blob = new Blob([wordDoc], { type: "application/msword" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    const filename = (formData?.appName || formData?.websiteUrl || formData?.businessName || "policy").replace(/\s+/g, "-").toLowerCase();
+    a.download = `privacy-policy-${filename}.doc`;
+    a.click();
+    URL.revokeObjectURL(url);
+    
+    toast({
+      title: "Downloaded!",
+      description: "Word document downloaded successfully",
     });
   };
 
@@ -155,9 +186,17 @@ const Result = () => {
               <Copy className="mr-2 h-4 w-4" />
               Copy
             </Button>
-            <Button variant="outline" onClick={handleDownload}>
+            <Button variant="outline" onClick={handleDownloadHTML}>
               <Download className="mr-2 h-4 w-4" />
-              Download
+              HTML
+            </Button>
+            <Button variant="outline" onClick={handleDownloadWord}>
+              <Download className="mr-2 h-4 w-4" />
+              Word
+            </Button>
+            <Button variant="outline" onClick={handleDownloadPDF}>
+              <Download className="mr-2 h-4 w-4" />
+              PDF
             </Button>
             <Button onClick={handleSave} disabled={isSaving}>
               {isSaving ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Save className="mr-2 h-4 w-4" />}
@@ -166,8 +205,11 @@ const Result = () => {
           </div>
         </div>
 
-        <Card className="p-6 md:p-8 bg-card/50 backdrop-blur-sm prose prose-invert max-w-none">
-          <ReactMarkdown>{policy}</ReactMarkdown>
+        <Card className="p-6 md:p-8 bg-card/50 backdrop-blur-sm">
+          <div 
+            className="prose prose-sm md:prose-base max-w-none dark:prose-invert"
+            dangerouslySetInnerHTML={{ __html: policy }}
+          />
         </Card>
       </motion.div>
     </div>

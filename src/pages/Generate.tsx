@@ -12,7 +12,10 @@ import { UserData } from "@/components/FormSteps/UserData";
 import { DevicePermissions } from "@/components/FormSteps/DevicePermissions";
 import { TrackingMarketing } from "@/components/FormSteps/TrackingMarketing";
 import { LegalCompliance } from "@/components/FormSteps/LegalCompliance";
-import { ContactInfo } from "@/components/FormSteps/ContactInfo";
+import { ThirdPartiesSharing } from "@/components/FormSteps/ThirdPartiesSharing";
+import { RetentionSecurity } from "@/components/FormSteps/RetentionSecurity";
+import { CookiesConsent } from "@/components/FormSteps/CookiesConsent";
+import { ContactFinalization } from "@/components/FormSteps/ContactFinalization";
 
 const TOTAL_STEPS = 11;
 
@@ -35,6 +38,10 @@ const Generate = () => {
     remarketing: { enabled: false, tools: [] },
     legalCompliance: [],
     appStoreUrls: [],
+    thirdPartiesSharing: { categories: [], details: "" },
+    retentionSecurity: {},
+    cookiesConsent: { usesCookies: false, cookieTypes: [], consentMethod: "" },
+    contactFinalization: {},
     confirmAccuracy: false,
   });
   const navigate = useNavigate();
@@ -82,13 +89,15 @@ const Generate = () => {
       case 6:
         return <TrackingMarketing formData={formData} updateFormData={updateFormData} onValidation={setIsStepValid} />;
       case 7:
-        return <LegalCompliance formData={formData} updateFormData={updateFormData} onValidation={setIsStepValid} />;
+        return <ThirdPartiesSharing formData={formData} updateFormData={updateFormData} onValidation={setIsStepValid} />;
       case 8:
+        return <LegalCompliance formData={formData} updateFormData={updateFormData} onValidation={setIsStepValid} />;
       case 9:
+        return <RetentionSecurity formData={formData} updateFormData={updateFormData} onValidation={setIsStepValid} />;
       case 10:
-        return <ContactInfo formData={formData} updateFormData={updateFormData} onValidation={setIsStepValid} />;
+        return <CookiesConsent formData={formData} updateFormData={updateFormData} onValidation={setIsStepValid} />;
       case 11:
-        return <ContactInfo formData={formData} updateFormData={updateFormData} onValidation={setIsStepValid} isFinalStep={isFinalStep} />;
+        return <ContactFinalization formData={formData} updateFormData={updateFormData} onValidation={setIsStepValid} />;
       default:
         return null;
     }
