@@ -17,41 +17,61 @@ serve(async (req) => {
     const formData = await req.json();
     console.log('Generating policy for:', formData.appName);
 
-    const prompt = `Generate a comprehensive, legally-compliant privacy policy for the following application:
+    // Build comprehensive prompt based on collected data
+    const businessInfo = formData.ownerType === "Business" 
+      ? `${formData.businessName} (${formData.businessType === "Other" ? formData.businessTypeOther : formData.businessType})`
+      : formData.individualName || "the service provider";
+    
+    const contactInfo = formData.ownerType === "Business" 
+      ? formData.businessEmail 
+      : formData.individualEmail;
 
-App Name: ${formData.appName}
-Website URL: ${formData.websiteUrl}
-Entity Type: ${formData.entityType}
-Country: ${formData.country}
-State: ${formData.state}
+    const prompt = `Generate a comprehensive, legally-compliant Privacy Policy document following the TermsFeed template structure.
 
-Data Collected:
-${formData.userDataCollected.join(', ')}
+BUSINESS INFORMATION:
+- Company/Owner: ${businessInfo}
+- Type: ${formData.ownerType}
+- Platform: ${formData.platformType}
+${formData.websiteUrl ? `- Website URL: ${formData.websiteUrl}` : ''}
+${formData.appName ? `- App Name: ${formData.appName}` : ''}
+- Contact Email: ${contactInfo}
+- Address: ${formData.businessAddress || 'N/A'}, ${formData.businessCity || ''}, ${formData.businessCountry || ''}
+- Languages: ${(formData.languages || ['English']).join(', ')}
+- Target Audience: ${(formData.targetAgeGroups || []).join(', ')}
 
-Device Permissions:
-${formData.devicePermissions.join(', ')}
+DATA COLLECTED:
+${(formData.userDataCollected || []).map((item: string) => `- ${item}`).join('\n')}
 
-Analytics Tools: ${formData.analytics.tools.join(', ')}
-Email Marketing: ${formData.emailMarketing.tools.join(', ')}
-Advertising: ${formData.advertising.tools.join(', ')}
-Payment Processing: ${formData.payments.tools.join(', ')}
-Remarketing: ${formData.remarketing.tools.join(', ')}
+COLLECTION METHODS:
+${(formData.collectionMethods || []).map((item: string) => `- ${item}`).join('\n')}
 
-Legal Compliance Required:
-${formData.legalCompliance.join(', ')}
+LEGAL FRAMEWORKS:
+${(formData.legalCompliance || ['General Privacy Policy']).map((law: string) => `- ${law}`).join('\n')}
 
-Contact Email: ${formData.contactEmail}
-Contact Page: ${formData.contactPage}
+Generate a professional privacy policy with these sections:
+1. Introduction and Effective Date
+2. Interpretation and Definitions
+3. Collecting and Using Your Personal Data
+   - Types of Data Collected
+   - Use of Your Personal Data
+   - Retention of Your Personal Data
+   - Transfer of Your Personal Data
+   - Disclosure of Your Personal Data
+4. Security of Your Personal Data
+5. Children's Privacy (if applicable)
+6. Links to Other Websites
+7. Changes to this Privacy Policy
+8. Contact Us
 
-Generate a professional, comprehensive privacy policy that:
-1. Covers all data collection practices
-2. Explains user rights under ${formData.legalCompliance.join(', ')}
-3. Details third-party integrations
-4. Includes clear contact information
-5. Uses professional legal language
-6. Is formatted in markdown
+For each legal framework selected, include specific compliance sections:
+- GDPR: Include data controller information, legal basis, data subject rights (access, rectification, erasure, restriction, portability, objection)
+- CCPA/CPRA: Include categories of personal information, right to opt-out, do not sell my personal information
+- CalOPPA: Include privacy policy accessibility, user notification procedures
+- COPPA: Include parental consent procedures, data collection from children
+- DPDPA: Include data fiduciary information, consent management, data retention
 
-Structure the policy with proper headings and sections.`;
+Use clear, professional legal language. Format as clean HTML with proper headings (h1, h2, h3) and semantic structure.
+Replace all placeholder text with actual information provided.`;
 
     const response = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
       method: 'POST',

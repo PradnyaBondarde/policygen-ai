@@ -76,7 +76,7 @@ const Generate = () => {
       case 3:
         return <WebsiteAppDetails formData={formData} updateFormData={updateFormData} onValidation={setIsStepValid} />;
       case 4:
-        return <UserData formData={formData} updateFormData={updateFormData} />;
+        return <UserData formData={formData} updateFormData={updateFormData} onValidation={setIsStepValid} />;
       case 5:
         return <DevicePermissions formData={formData} updateFormData={updateFormData} />;
       case 6:

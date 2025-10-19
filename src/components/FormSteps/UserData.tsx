@@ -2,10 +2,12 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { useState } from "react";
+import React from "react";
 
 interface UserDataProps {
   formData: any;
   updateFormData: (data: any) => void;
+  onValidation?: (isValid: boolean) => void;
 }
 
 const dataTypes = [
@@ -18,9 +20,16 @@ const dataTypes = [
   "Uploaded files/photos",
 ];
 
-export const UserData = ({ formData, updateFormData }: UserDataProps) => {
+export const UserData = ({ formData, updateFormData, onValidation }: UserDataProps) => {
   const [showOther, setShowOther] = useState(false);
   const [otherData, setOtherData] = useState("");
+
+  // Validation is optional for this card - user can proceed without selecting anything
+  React.useEffect(() => {
+    if (onValidation) {
+      onValidation(true); // Always valid - all fields are optional
+    }
+  }, [onValidation]);
 
   const handleToggle = (item: string) => {
     const current = formData.userDataCollected || [];
