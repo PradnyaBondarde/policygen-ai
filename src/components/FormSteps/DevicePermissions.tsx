@@ -8,6 +8,7 @@ import { Plus, X } from "lucide-react";
 interface DevicePermissionsProps {
   formData: any;
   updateFormData: (data: any) => void;
+  onValidation?: (isValid: boolean) => void;
 }
 
 const permissions = [
@@ -26,8 +27,13 @@ const collectionMethods = [
   "Device features",
 ];
 
-export const DevicePermissions = ({ formData, updateFormData }: DevicePermissionsProps) => {
+export const DevicePermissions = ({ formData, updateFormData, onValidation }: DevicePermissionsProps) => {
   const [customMethod, setCustomMethod] = React.useState("");
+
+  // This step has no required fields; always mark as valid so Next works
+  React.useEffect(() => {
+    onValidation?.(true);
+  }, [onValidation]);
 
   const handleTogglePermission = (item: string) => {
     const current = formData.devicePermissions || [];

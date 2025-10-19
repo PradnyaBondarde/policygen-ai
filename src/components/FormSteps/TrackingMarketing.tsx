@@ -1,3 +1,4 @@
+import React from "react";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -5,6 +6,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 interface TrackingMarketingProps {
   formData: any;
   updateFormData: (data: any) => void;
+  onValidation?: (isValid: boolean) => void;
 }
 
 const analyticsTools = ["Google Analytics", "Firebase", "Mixpanel", "Matomo"];
@@ -13,7 +15,7 @@ const adTools = ["AdSense", "AdMob", "Bing Ads"];
 const paymentTools = ["Stripe", "PayPal", "Google Pay"];
 const remarketingTools = ["Google Ads", "Facebook Ads", "Twitter Ads"];
 
-export const TrackingMarketing = ({ formData, updateFormData }: TrackingMarketingProps) => {
+export const TrackingMarketing = ({ formData, updateFormData, onValidation }: TrackingMarketingProps) => {
   const toggleTool = (category: string, tool: string) => {
     const current = formData[category]?.tools || [];
     const updated = current.includes(tool)
@@ -70,6 +72,11 @@ export const TrackingMarketing = ({ formData, updateFormData }: TrackingMarketin
       )}
     </div>
   );
+
+  React.useEffect(() => {
+    // Optional step; always valid
+    onValidation?.(true);
+  }, [onValidation]);
 
   return (
     <div className="space-y-4">

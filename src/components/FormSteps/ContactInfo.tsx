@@ -15,7 +15,7 @@ interface ContactInfoProps {
 export const ContactInfo = ({ formData, updateFormData, onValidation, isFinalStep }: ContactInfoProps) => {
   const isValid = isFinalStep 
     ? !!(formData.contactEmail && formData.privacyContactName && formData.confirmAccuracy)
-    : !!(formData.contactEmail);
+    : true;
   
   React.useEffect(() => {
     onValidation?.(isValid);

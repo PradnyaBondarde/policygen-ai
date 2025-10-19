@@ -1,3 +1,4 @@
+import React from "react";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
@@ -6,6 +7,7 @@ import { Info } from "lucide-react";
 interface LegalComplianceProps {
   formData: any;
   updateFormData: (data: any) => void;
+  onValidation?: (isValid: boolean) => void;
 }
 
 const regulations = [
@@ -41,7 +43,12 @@ const regulations = [
   },
 ];
 
-export const LegalCompliance = ({ formData, updateFormData }: LegalComplianceProps) => {
+export const LegalCompliance = ({ formData, updateFormData, onValidation }: LegalComplianceProps) => {
+  React.useEffect(() => {
+    // This step is optional for navigation; final validation can enforce law selection
+    onValidation?.(true);
+  }, [onValidation]);
+
   const handleToggle = (item: string) => {
     const current = formData.legalCompliance || [];
     const updated = current.includes(item)

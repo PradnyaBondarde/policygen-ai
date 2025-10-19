@@ -78,15 +78,15 @@ const Generate = () => {
       case 4:
         return <UserData formData={formData} updateFormData={updateFormData} onValidation={setIsStepValid} />;
       case 5:
-        return <DevicePermissions formData={formData} updateFormData={updateFormData} />;
+        return <DevicePermissions formData={formData} updateFormData={updateFormData} onValidation={setIsStepValid} />;
       case 6:
-        return <TrackingMarketing formData={formData} updateFormData={updateFormData} />;
+        return <TrackingMarketing formData={formData} updateFormData={updateFormData} onValidation={setIsStepValid} />;
       case 7:
-        return <LegalCompliance formData={formData} updateFormData={updateFormData} />;
+        return <LegalCompliance formData={formData} updateFormData={updateFormData} onValidation={setIsStepValid} />;
       case 8:
       case 9:
       case 10:
-        return <ContactInfo formData={formData} updateFormData={updateFormData} />;
+        return <ContactInfo formData={formData} updateFormData={updateFormData} onValidation={setIsStepValid} />;
       case 11:
         return <ContactInfo formData={formData} updateFormData={updateFormData} onValidation={setIsStepValid} isFinalStep={isFinalStep} />;
       default:
@@ -145,7 +145,7 @@ const Generate = () => {
             <ArrowLeft className="mr-2 h-4 w-4" />
             {currentStep === 1 ? "Cancel" : "Back"}
           </Button>
-          <Button onClick={handleNext} disabled={!isStepValid && currentStep !== TOTAL_STEPS}>
+      <Button onClick={handleNext} disabled={!isStepValid && currentStep !== TOTAL_STEPS}>
             {currentStep === TOTAL_STEPS ? "Generate Policy" : "Next"}
             {currentStep !== TOTAL_STEPS && <ArrowRight className="ml-2 h-4 w-4" />}
           </Button>
