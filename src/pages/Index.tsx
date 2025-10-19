@@ -99,9 +99,9 @@ const Index = () => {
             <div className="flex flex-col md:flex-row justify-between items-center gap-4 text-sm text-muted-foreground">
               <p>&copy; 2025 PolicyPro AI. All rights reserved.</p>
               <div className="flex gap-6">
-                <a href="#" className="hover:text-foreground transition-colors">About</a>
-                <a href="https://github.com" className="hover:text-foreground transition-colors">GitHub</a>
-                <a href="#" className="hover:text-foreground transition-colors">Contact</a>
+                
+                <a href="https://github.com/PradnyaBondarde/policygen-ai" className="hover:text-foreground transition-colors">GitHub</a>
+                {/* <a href="#" className="hover:text-foreground transition-colors">Contact</a> */}
               </div>
             </div>
           </div>

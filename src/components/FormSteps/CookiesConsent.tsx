@@ -19,19 +19,37 @@ const cookieTypes = [
 ];
 
 export const CookiesConsent = ({ formData, updateFormData, onValidation }: CookiesConsentProps) => {
-  React.useEffect(() => {
-    // All fields are optional
-    onValidation?.(true);
-  }, [onValidation]);
-
   const cookiesData = formData.cookiesConsent || { usesCookies: false, cookieTypes: [], consentMethod: "" };
+
+  const handleNoneToggle = () => {
+    const currentNone = formData.cookiesConsentNone || false;
+    if (!currentNone) {
+      updateFormData({ 
+        cookiesConsentNone: true, 
+        cookiesConsent: { usesCookies: false, cookieTypes: [], consentMethod: "" } 
+      });
+    } else {
+      updateFormData({ cookiesConsentNone: false });
+    }
+  };
+
+  const isValid = (
+    formData.cookiesConsentNone || 
+    cookiesData.usesCookies === false ||
+    (cookiesData.usesCookies && cookiesData.cookieTypes?.length > 0)
+  );
+
+  React.useEffect(() => {
+    onValidation?.(isValid);
+  }, [isValid, onValidation]);
 
   const handleCookieToggle = () => {
     updateFormData({
       cookiesConsent: {
         ...cookiesData,
         usesCookies: !cookiesData.usesCookies
-      }
+      },
+      cookiesConsentNone: false
     });
   };
 
@@ -70,14 +88,24 @@ export const CookiesConsent = ({ formData, updateFormData, onValidation }: Cooki
   return (
     <div className="space-y-6">
       <p className="text-sm text-muted-foreground">
-        Specify your cookie usage and consent mechanisms
+        Specify your cookie usage and consent mechanisms (or select None)
       </p>
+
+      <div className="flex items-center space-x-2 p-3 rounded-lg border border-border bg-muted/30">
+        <Checkbox
+          id="cookiesConsentNone"
+          checked={formData.cookiesConsentNone || false}
+          onCheckedChange={handleNoneToggle}
+        />
+        <Label htmlFor="cookiesConsentNone" className="font-medium cursor-pointer">None - No cookies used</Label>
+      </div>
 
       <div className="flex items-center space-x-2">
         <Checkbox
           id="usesCookies"
           checked={cookiesData.usesCookies}
           onCheckedChange={handleCookieToggle}
+          disabled={formData.cookiesConsentNone}
         />
         <Label htmlFor="usesCookies" className="cursor-pointer font-medium">
           This website/app uses cookies

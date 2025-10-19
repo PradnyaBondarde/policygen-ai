@@ -44,24 +44,43 @@ const regulations = [
 ];
 
 export const LegalCompliance = ({ formData, updateFormData, onValidation }: LegalComplianceProps) => {
+  const handleNoneToggle = () => {
+    const currentNone = formData.legalComplianceNone || false;
+    if (!currentNone) {
+      updateFormData({ legalComplianceNone: true, legalCompliance: [] });
+    } else {
+      updateFormData({ legalComplianceNone: false });
+    }
+  };
+
+  const isValid = (formData.legalComplianceNone || (formData.legalCompliance || []).length > 0);
+
   React.useEffect(() => {
-    // This step is optional for navigation; final validation can enforce law selection
-    onValidation?.(true);
-  }, [onValidation]);
+    onValidation?.(isValid);
+  }, [isValid, onValidation]);
 
   const handleToggle = (item: string) => {
     const current = formData.legalCompliance || [];
     const updated = current.includes(item)
       ? current.filter((i: string) => i !== item)
       : [...current, item];
-    updateFormData({ legalCompliance: updated });
+    updateFormData({ legalCompliance: updated, legalComplianceNone: false });
   };
 
   return (
     <div className="space-y-4">
       <p className="text-sm text-muted-foreground">
-        Select applicable legal frameworks for compliance
+        Select applicable legal frameworks for compliance (or select None if not applicable)
       </p>
+      
+      <div className="flex items-center space-x-2 p-3 rounded-lg border border-border bg-muted/30">
+        <Checkbox
+          id="legalComplianceNone"
+          checked={formData.legalComplianceNone || false}
+          onCheckedChange={handleNoneToggle}
+        />
+        <Label htmlFor="legalComplianceNone" className="font-medium cursor-pointer">None - No specific legal compliance required</Label>
+      </div>
       
       <TooltipProvider>
         {regulations.map((reg) => (
@@ -71,6 +90,7 @@ export const LegalCompliance = ({ formData, updateFormData, onValidation }: Lega
                 id={reg.id}
                 checked={(formData.legalCompliance || []).includes(reg.label)}
                 onCheckedChange={() => handleToggle(reg.label)}
+                disabled={formData.legalComplianceNone}
               />
               <Label htmlFor={reg.id} className="font-normal cursor-pointer flex-1">{reg.label}</Label>
               <Tooltip>

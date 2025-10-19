@@ -27,20 +27,28 @@ const Generate = () => {
     ownerType: "",
     languages: [],
     operationScope: [],
-    targetAgeGroups: [],
+    targetAgeGroup: "",
     userDataCollected: [],
+    userDataNone: false,
     devicePermissions: [],
+    devicePermissionsNone: false,
     collectionMethods: [],
+    collectionMethodsNone: false,
     analytics: { enabled: false, tools: [] },
     emailMarketing: { enabled: false, tools: [] },
     advertising: { enabled: false, tools: [] },
     payments: { enabled: false, tools: [] },
     remarketing: { enabled: false, tools: [] },
+    processingNone: false,
     legalCompliance: [],
+    legalComplianceNone: false,
     appStoreUrls: [],
     thirdPartiesSharing: { categories: [], details: "" },
+    thirdPartiesSharingNone: false,
     retentionSecurity: {},
+    retentionSecurityNone: false,
     cookiesConsent: { usesCookies: false, cookieTypes: [], consentMethod: "" },
+    cookiesConsentNone: false,
     contactFinalization: {},
     confirmAccuracy: false,
   });
@@ -154,7 +162,7 @@ const Generate = () => {
             <ArrowLeft className="mr-2 h-4 w-4" />
             {currentStep === 1 ? "Cancel" : "Back"}
           </Button>
-      <Button onClick={handleNext} disabled={!isStepValid && currentStep !== TOTAL_STEPS}>
+          <Button onClick={handleNext} disabled={!isStepValid}>
             {currentStep === TOTAL_STEPS ? "Generate Policy" : "Next"}
             {currentStep !== TOTAL_STEPS && <ArrowRight className="ml-2 h-4 w-4" />}
           </Button>

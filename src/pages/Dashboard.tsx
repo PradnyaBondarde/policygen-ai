@@ -137,10 +137,14 @@ const Dashboard = () => {
                   
                   <h3 className="font-semibold mb-2 line-clamp-2">{policy.title}</h3>
                   
-                  <div className="flex items-center text-sm text-muted-foreground mb-4">
+                  <div className="flex items-center text-sm text-muted-foreground mb-2">
                     <Calendar className="h-4 w-4 mr-1" />
                     {new Date(policy.created_at).toLocaleDateString()}
                   </div>
+                  
+                  <p className="text-xs text-muted-foreground line-clamp-2 mb-4">
+                    {policy.content?.replace(/<[^>]*>/g, '').substring(0, 100)}...
+                  </p>
 
                   <div className="flex gap-2">
                     <Button
@@ -150,7 +154,7 @@ const Dashboard = () => {
                       className="flex-1"
                     >
                       <Eye className="mr-2 h-4 w-4" />
-                      View
+                      View/Edit
                     </Button>
                     <Button
                       variant="outline"

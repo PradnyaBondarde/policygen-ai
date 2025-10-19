@@ -24,19 +24,31 @@ export const UserData = ({ formData, updateFormData, onValidation }: UserDataPro
   const [showOther, setShowOther] = useState(false);
   const [otherData, setOtherData] = useState("");
 
-  // Validation is optional for this card - user can proceed without selecting anything
+  const handleNoneToggle = () => {
+    const currentNone = formData.userDataNone || false;
+    if (!currentNone) {
+      // If selecting None, clear all selections
+      updateFormData({ userDataNone: true, userDataCollected: [] });
+    } else {
+      updateFormData({ userDataNone: false });
+    }
+  };
+
+  // Validation: Allow if None is selected OR at least one data type is selected
+  const isValid = (formData.userDataNone || (formData.userDataCollected || []).length > 0);
+
   React.useEffect(() => {
     if (onValidation) {
-      onValidation(true); // Always valid - all fields are optional
+      onValidation(isValid);
     }
-  }, [onValidation]);
+  }, [isValid, onValidation]);
 
   const handleToggle = (item: string) => {
     const current = formData.userDataCollected || [];
     const updated = current.includes(item)
       ? current.filter((i: string) => i !== item)
       : [...current, item];
-    updateFormData({ userDataCollected: updated });
+    updateFormData({ userDataCollected: updated, userDataNone: false });
   };
 
   const handleOtherAdd = () => {
@@ -50,7 +62,16 @@ export const UserData = ({ formData, updateFormData, onValidation }: UserDataPro
 
   return (
     <div className="space-y-4">
-      <p className="text-sm text-muted-foreground">Select all types of user data you collect</p>
+      <p className="text-sm text-muted-foreground">Select all types of user data you collect (or select None if you don't collect any data)</p>
+      
+      <div className="flex items-center space-x-2 p-3 rounded-lg border border-border bg-muted/30">
+        <Checkbox
+          id="userDataNone"
+          checked={formData.userDataNone || false}
+          onCheckedChange={handleNoneToggle}
+        />
+        <Label htmlFor="userDataNone" className="font-medium cursor-pointer">None - I don't collect user data</Label>
+      </div>
       
       {dataTypes.map((item) => (
         <div key={item} className="flex items-center space-x-2">
@@ -58,12 +79,13 @@ export const UserData = ({ formData, updateFormData, onValidation }: UserDataPro
             id={item}
             checked={(formData.userDataCollected || []).includes(item)}
             onCheckedChange={() => handleToggle(item)}
+            disabled={formData.userDataNone}
           />
           <Label htmlFor={item} className="font-normal cursor-pointer">{item}</Label>
         </div>
       ))}
 
-      {!showOther && (
+      {!showOther && !formData.userDataNone && (
         <button
           type="button"
           onClick={() => setShowOther(true)}

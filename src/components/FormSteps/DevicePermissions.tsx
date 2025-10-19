@@ -30,17 +30,39 @@ const collectionMethods = [
 export const DevicePermissions = ({ formData, updateFormData, onValidation }: DevicePermissionsProps) => {
   const [customMethod, setCustomMethod] = React.useState("");
 
-  // This step has no required fields; always mark as valid so Next works
+  const handlePermissionsNoneToggle = () => {
+    const currentNone = formData.devicePermissionsNone || false;
+    if (!currentNone) {
+      updateFormData({ devicePermissionsNone: true, devicePermissions: [] });
+    } else {
+      updateFormData({ devicePermissionsNone: false });
+    }
+  };
+
+  const handleMethodsNoneToggle = () => {
+    const currentNone = formData.collectionMethodsNone || false;
+    if (!currentNone) {
+      updateFormData({ collectionMethodsNone: true, collectionMethods: [] });
+    } else {
+      updateFormData({ collectionMethodsNone: false });
+    }
+  };
+
+  const isValid = (
+    (formData.devicePermissionsNone || (formData.devicePermissions || []).length > 0) &&
+    (formData.collectionMethodsNone || (formData.collectionMethods || []).length > 0)
+  );
+
   React.useEffect(() => {
-    onValidation?.(true);
-  }, [onValidation]);
+    onValidation?.(isValid);
+  }, [isValid, onValidation]);
 
   const handleTogglePermission = (item: string) => {
     const current = formData.devicePermissions || [];
     const updated = current.includes(item)
       ? current.filter((i: string) => i !== item)
       : [...current, item];
-    updateFormData({ devicePermissions: updated });
+    updateFormData({ devicePermissions: updated, devicePermissionsNone: false });
   };
 
   const handleToggleMethod = (method: string) => {
@@ -48,7 +70,7 @@ export const DevicePermissions = ({ formData, updateFormData, onValidation }: De
     const updated = current.includes(method)
       ? current.filter((m: string) => m !== method)
       : [...current, method];
-    updateFormData({ collectionMethods: updated });
+    updateFormData({ collectionMethods: updated, collectionMethodsNone: false });
   };
 
   const addCustomMethod = () => {
@@ -71,8 +93,17 @@ export const DevicePermissions = ({ formData, updateFormData, onValidation }: De
       <div>
         <Label className="text-base font-semibold mb-3 block">Device Permissions</Label>
         <p className="text-sm text-muted-foreground mb-3">
-          Select device permissions your app requests (or skip if none)
+          Select device permissions your app requests
         </p>
+        
+        <div className="flex items-center space-x-2 p-3 rounded-lg border border-border bg-muted/30 mb-3">
+          <Checkbox
+            id="devicePermissionsNone"
+            checked={formData.devicePermissionsNone || false}
+            onCheckedChange={handlePermissionsNoneToggle}
+          />
+          <Label htmlFor="devicePermissionsNone" className="font-medium cursor-pointer">None - No device permissions required</Label>
+        </div>
         
         <div className="space-y-2">
           {permissions.map((item) => (
@@ -81,6 +112,7 @@ export const DevicePermissions = ({ formData, updateFormData, onValidation }: De
                 id={item}
                 checked={(formData.devicePermissions || []).includes(item)}
                 onCheckedChange={() => handleTogglePermission(item)}
+                disabled={formData.devicePermissionsNone}
               />
               <Label htmlFor={item} className="font-normal cursor-pointer">{item}</Label>
             </div>
@@ -94,6 +126,15 @@ export const DevicePermissions = ({ formData, updateFormData, onValidation }: De
           Select collection methods
         </p>
         
+        <div className="flex items-center space-x-2 p-3 rounded-lg border border-border bg-muted/30 mb-3">
+          <Checkbox
+            id="collectionMethodsNone"
+            checked={formData.collectionMethodsNone || false}
+            onCheckedChange={handleMethodsNoneToggle}
+          />
+          <Label htmlFor="collectionMethodsNone" className="font-medium cursor-pointer">None - No data collection methods</Label>
+        </div>
+        
         <div className="space-y-2">
           {collectionMethods.map((method) => (
             <div key={method} className="flex items-center space-x-2">
@@ -101,6 +142,7 @@ export const DevicePermissions = ({ formData, updateFormData, onValidation }: De
                 id={method}
                 checked={(formData.collectionMethods || []).includes(method)}
                 onCheckedChange={() => handleToggleMethod(method)}
+                disabled={formData.collectionMethodsNone}
               />
               <Label htmlFor={method} className="font-normal cursor-pointer">{method}</Label>
             </div>
@@ -113,6 +155,7 @@ export const DevicePermissions = ({ formData, updateFormData, onValidation }: De
             value={customMethod}
             onChange={(e) => setCustomMethod(e.target.value)}
             onKeyDown={(e) => e.key === "Enter" && addCustomMethod()}
+            disabled={formData.collectionMethodsNone}
           />
           <Button type="button" size="sm" onClick={addCustomMethod}>
             <Plus className="h-4 w-4" />

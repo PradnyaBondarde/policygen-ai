@@ -14,10 +14,32 @@ serve(async (req) => {
   }
 
   try {
-    const { content } = await req.json();
-    console.log('Generating AI suggestions for policy content');
+    const { content, instruction } = await req.json();
+    
+    // If instruction is provided, this is an edit request, otherwise it's a suggestion request
+    const isEditRequest = !!instruction;
+    
+    console.log(isEditRequest ? 'Editing policy with AI' : 'Generating AI suggestions for policy content');
 
-    const prompt = `Review this privacy policy and suggest improvements for legal compliance, clarity, and completeness:
+    const prompt = isEditRequest 
+      ? `You are a legal expert editing a privacy policy. Apply the following changes to the policy below:
+
+User's instruction: "${instruction}"
+
+Current Privacy Policy:
+${content}
+
+IMPORTANT FORMATTING REQUIREMENTS:
+- Return the COMPLETE revised policy in PLAIN TEXT ONLY (no HTML tags)
+- Maintain the exact heading format: "## HEADING" for main sections, "### Subheading" for subsections
+- Keep all headings in UPPERCASE for main sections
+- Use bullet points with "-" for lists
+- Maintain professional legal language
+- Apply the user's requested changes while preserving the overall structure
+- Ensure the output is clean, readable, and ready to paste into a Word document
+
+Return ONLY the revised policy text, nothing else.`
+      : `Review this privacy policy and suggest improvements for legal compliance, clarity, and completeness:
 
 ${content}
 
@@ -59,12 +81,27 @@ Format each suggestion as a clear, concise recommendation.`;
     }
 
     const data = await response.json();
-    const suggestions = data.choices[0].message.content;
+    let result = data.choices[0].message.content;
 
-    console.log('Suggestions generated successfully');
+    // If this is an edit request, strip HTML tags if present
+    if (isEditRequest && result.includes('<') && result.includes('>')) {
+      console.log('Stripping HTML tags from edited policy');
+      result = result
+        .replace(/<[^>]*>/g, '')
+        .replace(/&nbsp;/g, ' ')
+        .replace(/&amp;/g, '&')
+        .replace(/&lt;/g, '<')
+        .replace(/&gt;/g, '>')
+        .replace(/&quot;/g, '"')
+        .replace(/&#39;/g, "'")
+        .replace(/\n\s*\n\s*\n/g, '\n\n')
+        .trim();
+    }
+
+    console.log(isEditRequest ? 'Policy edited successfully' : 'Suggestions generated successfully');
 
     return new Response(
-      JSON.stringify({ suggestions }),
+      JSON.stringify(isEditRequest ? { revisedPolicy: result } : { suggestions: result }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
   } catch (error) {

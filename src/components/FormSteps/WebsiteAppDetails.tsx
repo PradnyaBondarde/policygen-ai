@@ -2,6 +2,7 @@ import React from "react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Button } from "@/components/ui/button";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { AlertCircle, Plus, X } from "lucide-react";
@@ -19,9 +20,11 @@ export const WebsiteAppDetails = ({ formData, updateFormData, onValidation }: We
 
   const commonLanguages = ["English", "Spanish", "French", "German", "Chinese", "Japanese", "Portuguese", "Hindi", "Arabic"];
   const scopes = ["Local", "National", "International"];
-  const ageGroups = ["All ages", "Children (<13)", "Teens (13-17)", "Adults (18+)"];
+  const ageGroups = ["All ages", "Children (<13)", "Teens (13-17)", "Adults (18+)", "None"];
 
-  const isValid = (formData.languages?.length > 0) && (formData.operationScope?.length > 0);
+  const isValid = (formData.languages?.length > 0 || formData.languages?.includes("None")) && 
+                   (formData.operationScope?.length > 0) &&
+                   (formData.targetAgeGroup || false);
   
   React.useEffect(() => {
     onValidation?.(isValid);
@@ -71,12 +74,8 @@ export const WebsiteAppDetails = ({ formData, updateFormData, onValidation }: We
     updateFormData({ operationScope: updated });
   };
 
-  const toggleAgeGroup = (age: string) => {
-    const current = formData.targetAgeGroups || [];
-    const updated = current.includes(age)
-      ? current.filter((a: string) => a !== age)
-      : [...current, age];
-    updateFormData({ targetAgeGroups: updated });
+  const setAgeGroup = (age: string) => {
+    updateFormData({ targetAgeGroup: age });
   };
 
   return (
@@ -191,20 +190,17 @@ export const WebsiteAppDetails = ({ formData, updateFormData, onValidation }: We
       </div>
 
       <div>
-        <Label className="text-base font-semibold mb-3 block">Target Audience Age Groups *</Label>
-        <div className="space-y-2">
+        <Label className="text-base font-semibold mb-3 block">Target Audience Age Group *</Label>
+        <p className="text-sm text-muted-foreground mb-3">Select one age group</p>
+        <RadioGroup value={formData.targetAgeGroup || ""} onValueChange={setAgeGroup}>
           {ageGroups.map((age) => (
             <div key={age} className="flex items-center space-x-2">
-              <Checkbox
-                id={age}
-                checked={(formData.targetAgeGroups || []).includes(age)}
-                onCheckedChange={() => toggleAgeGroup(age)}
-              />
+              <RadioGroupItem value={age} id={age} />
               <Label htmlFor={age} className="font-normal cursor-pointer">{age}</Label>
             </div>
           ))}
-        </div>
-        {(formData.targetAgeGroups || []).includes("Children (<13)") && (
+        </RadioGroup>
+        {formData.targetAgeGroup === "Children (<13)" && (
           <div className="mt-3 p-3 bg-warning/10 border border-warning rounded-lg">
             <p className="text-sm font-medium">⚠️ COPPA Compliance Required</p>
             <p className="text-xs text-muted-foreground mt-1">
@@ -218,7 +214,7 @@ export const WebsiteAppDetails = ({ formData, updateFormData, onValidation }: We
         <Alert variant="destructive">
           <AlertCircle className="h-4 w-4" />
           <AlertDescription>
-            Please select at least one language and operation scope to continue.
+            Please select at least one language, operation scope, and target age group to continue (or select "None" if not applicable).
           </AlertDescription>
         </Alert>
       )}

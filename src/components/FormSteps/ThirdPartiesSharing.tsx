@@ -19,12 +19,25 @@ const thirdPartyCategories = [
 ];
 
 export const ThirdPartiesSharing = ({ formData, updateFormData, onValidation }: ThirdPartiesSharingProps) => {
-  React.useEffect(() => {
-    // All fields are optional
-    onValidation?.(true);
-  }, [onValidation]);
-
   const thirdPartiesData = formData.thirdPartiesSharing || { categories: [], details: "" };
+
+  const handleNoneToggle = () => {
+    const currentNone = formData.thirdPartiesSharingNone || false;
+    if (!currentNone) {
+      updateFormData({ 
+        thirdPartiesSharingNone: true, 
+        thirdPartiesSharing: { categories: [], details: "" } 
+      });
+    } else {
+      updateFormData({ thirdPartiesSharingNone: false });
+    }
+  };
+
+  const isValid = (formData.thirdPartiesSharingNone || (thirdPartiesData.categories || []).length > 0);
+
+  React.useEffect(() => {
+    onValidation?.(isValid);
+  }, [isValid, onValidation]);
 
   const handleCategoryToggle = (category: string) => {
     const current = thirdPartiesData.categories || [];
@@ -36,7 +49,8 @@ export const ThirdPartiesSharing = ({ formData, updateFormData, onValidation }: 
       thirdPartiesSharing: {
         ...thirdPartiesData,
         categories: updated
-      }
+      },
+      thirdPartiesSharingNone: false
     });
   };
 
@@ -52,8 +66,17 @@ export const ThirdPartiesSharing = ({ formData, updateFormData, onValidation }: 
   return (
     <div className="space-y-6">
       <p className="text-sm text-muted-foreground">
-        Specify which third parties have access to user data and why
+        Specify which third parties have access to user data and why (or select None)
       </p>
+
+      <div className="flex items-center space-x-2 p-3 rounded-lg border border-border bg-muted/30">
+        <Checkbox
+          id="thirdPartiesSharingNone"
+          checked={formData.thirdPartiesSharingNone || false}
+          onCheckedChange={handleNoneToggle}
+        />
+        <Label htmlFor="thirdPartiesSharingNone" className="font-medium cursor-pointer">None - No third-party data sharing</Label>
+      </div>
 
       <div className="space-y-3">
         <Label className="text-sm font-medium">Third Party Categories</Label>
@@ -64,6 +87,7 @@ export const ThirdPartiesSharing = ({ formData, updateFormData, onValidation }: 
                 id={category.id}
                 checked={(thirdPartiesData.categories || []).includes(category.id)}
                 onCheckedChange={() => handleCategoryToggle(category.id)}
+                disabled={formData.thirdPartiesSharingNone}
               />
               <Label htmlFor={category.id} className="font-normal cursor-pointer flex-1">
                 {category.label}
@@ -82,6 +106,7 @@ export const ThirdPartiesSharing = ({ formData, updateFormData, onValidation }: 
           onChange={(e) => handleDetailsChange(e.target.value)}
           placeholder="Describe data sharing agreements, safeguards, and purposes"
           rows={4}
+          disabled={formData.thirdPartiesSharingNone}
         />
         <p className="text-xs text-muted-foreground">
           Explain how and why data is shared with third parties
