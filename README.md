@@ -1,79 +1,115 @@
 # PolicyGen AI
 
-PolicyGen AI is a web project that generates policies using AI integration. It is built using **Deno/JavaScript** with a simple, responsive frontend and a placeholder favicon. The project is fully deployed and accessible online.
+PolicyGen AI is an application that leverages artificial intelligence to generate comprehensive and compliant privacy policies. It provides a user-friendly, step-by-step form to gather business details and automatically creates a policy tailored to specific needs, including compliance with regulations like GDPR, CCPA, and COPPA.
 
----
+## Features
 
-## **Live Demo**
+-   **AI-Powered Generation**: Utilizes AI to create professional, legally-sound privacy policies from user-provided data.
+-   **Multi-Step Form**: A detailed, 11-step wizard guides users through providing all necessary information for a comprehensive policy.
+-   **User Authentication**: Secure sign-up and sign-in functionality using Supabase Auth to manage user accounts and policies.
+-   **Policy Dashboard**: A centralized dashboard for authenticated users to view, manage, and delete their saved policies.
+-   **Policy Versioning**: Automatically versions policies, allowing users to track changes and maintain a history of their documents.
+-   **Full-Featured Editor**: View, edit, copy, and download generated policies in various formats (HTML, Word).
+-   **AI-Assisted Editing**: After generation, users can leverage AI to suggest improvements or make specific edits based on natural language instructions.
+-   **Responsive Design**: A clean, modern UI built with Shadcn/UI and Tailwind CSS, fully responsive for both desktop and mobile devices.
 
-Check out the live project here:  
-[https://policygen-ai.vercel.app/](https://policygen-ai.vercel.app/)
+## Tech Stack
 
----
+-   **Frontend**:
+    -   **Framework**: React (with Vite)
+    -   **Language**: TypeScript
+    -   **UI**: Shadcn/UI, Tailwind CSS
+    -   **Routing**: React Router
+    -   **State Management**: React Query
+    -   **Animations**: Framer Motion
+-   **Backend (Serverless)**:
+    -   **Platform**: Supabase
+    -   **Database**: Supabase Postgres with Row Level Security (RLS).
+    -   **Authentication**: Supabase Auth
+    -   **Edge Functions**: Deno functions for server-side AI logic.
+-   **AI Integration**:
+    -   The `generate-policy` and `ai-suggest` Supabase Edge Functions make secure calls to an AI model via a gateway.
 
-## **Features**
+## Getting Started
 
-- AI-powered policy generation (via integrated API).  
-- Fully responsive design for desktop and mobile.  
-- Placeholder favicon displayed in the browser tab.  
-- Quick deployment on Vercel (free).  
+Follow these instructions to set up and run the project locally.
 
----
+### Prerequisites
 
-## **Project Structure**
+-   [Node.js](https://nodejs.org/en) (v18 or later)
+-   [npm](https://www.npmjs.com/) (comes with Node.js)
+-   [Supabase Account](https://supabase.com/) and a new project created.
+-   [Supabase CLI](https://supabase.com/docs/guides/cli)
 
-/project-root
-│
-├─ main.ts # Deno server entry point
-├─ index.html # Frontend HTML
-├─ assets/
-│ └─ favicon.png # Placeholder favicon
-├─ README.md
-└─ ...
+### 1. Clone the Repository
 
-yaml
-Copy code
+```bash
+git clone https://github.com/PradnyaBondarde/policygen-ai.git
+cd policygen-ai
+```
 
----
+### 2. Install Frontend Dependencies
 
-## **Setup & Run Locally**
+```bash
+npm install
+```
 
-1. **Install Deno** (if using server features):  
-   [https://deno.com/manual/getting_started](https://deno.com/manual/getting_started)
+### 3. Set Up Supabase Backend
 
-2. **Clone the repository**:  
-   ```bash
-   git clone <your-repo-url>
-   cd <your-project-folder>
-Set environment variable (if needed for API):
+1.  **Log in to Supabase CLI**:
+    ```bash
+    supabase login
+    ```
 
-bash
-Copy code
-export LOVABLE_API_KEY="your_api_key_here"
-Run the project locally:
+2.  **Link to your Supabase project** (replace `<project-id>` with your actual project ID from the Supabase dashboard):
+    ```bash
+    supabase link --project-ref <project-id>
+    ```
 
-bash
-Copy code
-deno run --allow-net --allow-env main.ts
-Open http://localhost:8000 to view it locally.
+3.  **Push database migrations**: This will create the `policies` and `profiles` tables as defined in `supabase/migrations`.
+    ```bash
+    supabase db push
+    ```
 
-Favicon
-The browser tab shows a placeholder favicon:
+4.  **Deploy Edge Functions**: This will deploy the AI generation and suggestion functions.
+    ```bash
+    supabase functions deploy
+    ```
 
-html
-Copy code
-<link rel="icon" type="image/png" href="https://via.placeholder.com/32" />
-You can replace this with a custom logo later.
+### 4. Configure Environment Variables
 
-Deployment
-The project is deployed on Vercel (Free Tier):
+1.  Create a `.env` file in the root of the project.
+2.  Add your Supabase URL and Anon Key. You can find these in your Supabase project's "API Settings".
 
-GitHub repository connected → automatic deployments.
+    ```env
+    VITE_SUPABASE_URL="YOUR_SUPABASE_URL"
+    VITE_SUPABASE_PUBLISHABLE_KEY="YOUR_SUPABASE_ANON_KEY"
+    ```
 
-Live URL: https://policygen-ai.vercel.app/
+3.  You will also need to set up secrets for the Supabase Edge Functions. The `LOVABLE_API_KEY` is used in the functions to call the AI gateway.
+    ```bash
+    supabase secrets set LOVABLE_API_KEY="YOUR_API_KEY_HERE"
+    ```
 
-License
-This project is open-source and free to use.
+### 5. Run the Development Server
 
-yaml
-Copy code
+You can now start the frontend development server.
+
+```bash
+npm run dev
+```
+
+The application will be available at `http://localhost:8080`.
+
+## Application Structure
+
+-   `src/pages/`: Contains the main pages of the application (`Index`, `Generate`, `Result`, `Dashboard`, `Auth`, `Editor`).
+-   `src/components/`:
+    -   `FormSteps/`: Houses all the individual components for the 11-step policy generation form.
+    -   `ui/`: Reusable UI components from Shadcn/UI.
+-   `src/integrations/supabase/`: Supabase client configuration and generated database types.
+-   `supabase/`: Contains all backend-related files.
+    -   `migrations/`: Database schema and RLS policies.
+    -   `functions/`:
+        -   `generate-policy/`: The Edge Function that takes form data and calls the AI to generate the initial policy.
+        -   `ai-suggest/`: The Edge Function that provides AI-powered suggestions and edits for existing policies.
